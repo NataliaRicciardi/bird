@@ -9,3 +9,21 @@ spring:
     url: jdbc:mysql://0.0.0.0:3306/ums?serverTimezone=UTC&useLegacyDatetimeCode=false
     username: root
     password: passw
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: Ov23liFiZM5TBswF233I
+            clientSecret: d4a3847427d28a971a7891847f0d434138a8731b
+            scope:
+              - read:user
+              - user:email
+            redirectUri: http://localhost:9000/login/oauth2/code/github
+        provider:
+          github:
+            authorizationUri: https://github.com/login/oauth/authorize
+            tokenUri: https://github.com/login/oauth/access_token
+            userInfoUri: https://api.github.com/user
+            userNameAttribute: id

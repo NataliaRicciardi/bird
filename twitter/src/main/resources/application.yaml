@@ -10,9 +10,14 @@ spring:
     username: root
     password: passw
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000/ums
+
 ums:
   host: http://localhost
   port: 9000
   paths:
     user: /users/user
-
