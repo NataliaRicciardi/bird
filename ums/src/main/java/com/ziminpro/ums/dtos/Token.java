@@ -1,8 +1,6 @@
 package com.ziminpro.ums.dtos;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,4 +17,8 @@ public class Token {
     private String name;
     private String email;
     private LocalDateTime expirationTime;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

@@ -1,16 +1,32 @@
 package com.ziminpro.ums.dtos;
 
+import java.util.Set;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Getter
+@Setter
+@Table(name = "roles")
 public class Roles {
-    UUID roleId;
-    String role;
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
+    UUID id;
+
+    String name;
     String description;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
+
+    public Roles(UUID id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
 }

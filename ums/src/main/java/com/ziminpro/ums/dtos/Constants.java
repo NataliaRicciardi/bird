@@ -39,4 +39,9 @@ public class Constants {
     public static final String GET_ALL_ROLES = "SELECT * FROM " + TABLE_ROLES;
     public static final String DELETE_USER = "DELETE FROM " + TABLE_USERS + " WHERE `id` = (UUID_TO_BIN(?));";
     public static final String DELETE_LAST_VISIT = "DELETE FROM " + TABLE_LAST_VISIT + " WHERE `id` = (UUID_TO_BIN(?));";
+
+    public static final String GET_ROLES_BY_USER_ID = "SELECT r.id, r.name, r.description" +
+            "FROM roles r" +
+            "JOIN user_roles ur ON ur.role_id = r.id" +
+            "WHERE ur.user_id = ?";
 }
