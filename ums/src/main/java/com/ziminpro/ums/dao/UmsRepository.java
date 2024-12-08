@@ -17,4 +17,6 @@ public interface UmsRepository {
     UUID createUser(User user);
 
 	int deleteUser(UUID userId);
+
+    void assignRole(UUID userId, UUID roleId);
 }

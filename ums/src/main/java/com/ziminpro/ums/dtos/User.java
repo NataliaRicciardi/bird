@@ -1,9 +1,6 @@
 package com.ziminpro.ums.dtos;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,7 +26,7 @@ public class User {
             joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "roles_id")
     )
-    private Set<Roles> roles;
+    private Set<Roles> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     private Set<Token> tokens;
@@ -39,7 +36,12 @@ public class User {
     private LastSession lastSession;
 
     public User(UUID id, String name, String email, String password, int created, LastSession lastSession) {
-
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.created = created;
+        this.lastSession = lastSession;
     }
 
     public void addRole(Roles role) {

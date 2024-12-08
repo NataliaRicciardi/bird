@@ -1,5 +1,7 @@
 package com.ziminpro.ums.dao;
 
+import java.nio.ByteBuffer;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 
@@ -20,25 +22,49 @@ public class JdbcUmsRepository implements UmsRepository {
     public Map<UUID, User> findAllUsers() {
         Map<UUID, User> users = new HashMap<>();
 
-        List<Object> oUsers = jdbcTemplate.query(Constants.GET_ALL_USERS,
-                (rs, rowNum) -> new User(
-                        DaoHelper.bytesArrayToUuid(rs.getBytes("users.id")),
-                        rs.getString("users.name"),
-                        rs.getString("users.email"),
-                        rs.getString("users.password"),
-                        rs.getInt("users.created"),
-                        new LastSession(rs.getInt("last_visit.in"), rs.getInt("last_visit.out"))
-                ));
+        // Query to fetch all user details including roles
+        List<User> userList = jdbcTemplate.query(Constants.GET_ALL_USERS, (rs) -> {
+            Map<UUID, User> tempUsers = new HashMap<>();
 
-        for (Object oUser : oUsers) {
-            User user = (User) oUser;
+            while (rs.next()) {
+                UUID userId = DaoHelper.bytesArrayToUuid(rs.getBytes("users.id"));
 
-            // Fetch roles for each user
-            Set<Roles> roles = findRolesByUserId(user.getId());
-            user.setRoles(roles);
+                User user = tempUsers.computeIfAbsent(userId, id -> {
+                    try {
+                        return new User(
+                                id,
+                                rs.getString("users.name"),
+                                rs.getString("users.email"),
+                                rs.getString("users.password"),
+                                rs.getInt("users.created"),
+                                new LastSession(
+                                        rs.getInt("last_visit.in"),
+                                        rs.getInt("last_visit.out")
+                                )
+                        );
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
+                // Add roles to the user
+                if (rs.getBytes("roles.id") != null) { // Ensure role exists
+                    Roles role = new Roles(
+                            DaoHelper.bytesArrayToUuid(rs.getBytes("roles.id")),
+                            rs.getString("roles.name"),
+                            rs.getString("roles.description")
+                    );
+                    user.getRoles().add(role);
+                }
+            }
+
+            return new ArrayList<>(tempUsers.values());
+        });
+
+        for (User user : userList) {
             users.put(user.getId(), user);
         }
+
         return users;
     }
 
@@ -111,5 +137,18 @@ public class JdbcUmsRepository implements UmsRepository {
             roles.put(rs.getString("roles.name"), role);
         });
         return roles;
+    }
+
+    public void assignRole(UUID userId, UUID roleId) {
+        byte[] userIdBytes = asBytes(userId);
+        byte[] roleIdBytes = asBytes(roleId);
+
+    }
+
+    public static byte[] asBytes(UUID uuid) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[16]);
+        byteBuffer.putLong(uuid.getMostSignificantBits());
+        byteBuffer.putLong(uuid.getLeastSignificantBits());
+        return byteBuffer.array();
     }
 }
